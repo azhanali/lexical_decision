@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Guess the word</title>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+    <meta content="utf-8" http-equiv="encoding" />
+    <script src="jspsych-6.1.0/jspsych.js"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="stimuli.js"></script>
+    <link rel="stylesheet" href="jspsych-6.1.0/css/jspsych.css" type="text/css">
+  </head>
+  <body></body>
+  <script>
+    /* experiment parameters */
+    var TARGET_DURATION = 300;
+    var DECISION_DURATION = 2700;
+
+    var fixation = {
+      type: 'html-keyboard-response',
+      stimulus: function(){
+        return `<p style="font-size: 48px; font-family:  "Lobster", cursive;">${jsPsych.timelineVariable('target', true).toUpperCase()}</p>`
+      },
+      choices: jsPsych.NO_KEYS,
+      trial_duration: TARGET_DURATION
+    }
+
+    var decision = {
+      type: 'html-keyboard-response',
+      stimulus: '<p style="font-size: 28px; font-family:  "Lobster", cursive;">CHOOSE Z FOR WORD AND M FOR NON-WORDS</p>',
+      choices: ['z','m'],
+      data: {
+        target: jsPsych.timelineVariable('target'),
+        target_type: jsPsych.timelineVariable('condition'),
+        task: 'decision'
+      },
+      trial_duration: DECISION_DURATION,
+      on_finish: function(data){
+        if(data.target_type == 'nonword'){
+          data.correct = jsPsych.pluginAPI.compareKeys(data.key_press, 'm');
+        } else {
+          data.correct = jsPsych.pluginAPI.compareKeys(data.key_press, 'z');
+        }
+      }
+    }
+
+    
+    /* create the test */
+    var test = {
+      timeline: [fixation, decision],
+      timeline_variables: test_stimuli,
+      data: {
+        phase: 'test'
+      },
+      randomize_order: true
+    }
+
+    /* create the end screen */
+
+    var end = {
+      type: `html-keyboard-response`,
+      stimulus: `<p>You're done! A .csv file containing your data should be automatically downloading right now.
+        Check your default downloads location to find it. Once you've found it you can close the experiment.</p>`,
+      on_load: function(){
+        jsPsych.data.get().filter({phase: 'test', task: 'decision'})
+          .ignore('internal_node_id')
+          .ignore('time_elapsed')
+          .ignore('task')
+          .ignore('phase')
+          .ignore('trial_type')
+          .ignore('stimulus')
+          .ignore('trial_index')
+          .localSave('csv', 'lexical_decision.csv');
+      }
+    }
+
+    /* create the timeline */
+    var timeline = [];
+
+    timeline.push(test);
+    timeline.push(end);
+
+    jsPsych.init({
+      timeline: timeline,
+      experiment_width: 400
+    });
+  </script>
+</html>

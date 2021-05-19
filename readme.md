@@ -1,3 +1,5 @@
-# Lexical Decision Experiment
+# Lexical Decision
+It aims to check the reflexes by clicking the key according to the word and in the end save the .csv file which has data about word and relfex time locally.  
 
-This is mostly aimed at understanding how to get data from a .csv file into your jsPsych experiment. For example, if you have trial information in a spreadsheet and you want to use that to create your jsPsych trials.
+### How to run
+Just clone the repo and run the html file in any browser.
